@@ -406,7 +406,15 @@ with st.sidebar:
 # MAIN CONTENT - BOOKMARKS TAB
 # -----------------------------------------------------------------------
 if st.session_state.show_bookmarks:
-    st.markdown("## 📌 Saved Bookmarks")
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.markdown("## 📌 Saved Bookmarks")
+    with col2:
+        if st.button("← Back to Chat", use_container_width=True, help="Return to chat"):
+            st.session_state.show_bookmarks = False
+            st.rerun()
+    
+    st.divider()
     
     saved_bookmarks = bookmarks.get_bookmarks()
     
@@ -562,12 +570,18 @@ else:
             col1, col2, col3 = st.columns(3)
             with col1:
                 if st.button("⭐ Save", key=f"bookmark_{i}", use_container_width=True):
-                    bookmarks.add_bookmark(
-                        st.session_state.messages[i-1]["content"],
+                    # Get the user question from previous message
+                    user_question = st.session_state.messages[i-1]["content"] if i > 0 else "Unknown"
+                    bookmark_result = bookmarks.add_bookmark(
+                        user_question,
                         message["content"],
                         message.get("sources", [])
                     )
-                    st.success("✅ Bookmarked!")
+                    if bookmark_result:
+                        st.success("✅ Saved to bookmarks!")
+                        st.session_state[f"bookmarked_{i}"] = True
+                    else:
+                        st.error("❌ Failed to save bookmark")
             
             with col2:
                 if st.button("👍 Helpful", key=f"helpful_{i}", use_container_width=True):
@@ -640,8 +654,11 @@ else:
             col1, col2, col3 = st.columns(3)
             with col1:
                 if st.button("⭐ Bookmark This", use_container_width=True):
-                    bookmarks.add_bookmark(user_input, full_response, sources)
-                    st.success("✅ Saved to bookmarks!")
+                    bookmark_result = bookmarks.add_bookmark(user_input, full_response, sources)
+                    if bookmark_result:
+                        st.success("✅ Saved to bookmarks!")
+                    else:
+                        st.error("❌ Failed to save")
             
             with col2:
                 if st.button("👍 Great!", use_container_width=True):
