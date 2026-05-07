@@ -217,7 +217,6 @@ with st.sidebar:
     - 📄 15 Research Papers (arXiv)
     - 📚 28 Hugging Face Documentation
     - 🔗 21 LangChain Docs
-    - 📖 42 ML/DL Textbooks
     
     **Total:** 6,694 knowledge chunks indexed
     """)
