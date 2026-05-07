@@ -6,6 +6,10 @@ env/
 # Data folder (PDFs, docs, cache — too large for git)
 Data/
 
+Code/RAG_IMPROVEMENTS.md
+Code/RAG_Analysis.md
+
+
 # Python cache
 __pycache__/
 *.pyc
