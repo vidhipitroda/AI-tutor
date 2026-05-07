@@ -114,9 +114,9 @@ def load_llm():
     return ChatOpenAI(model=LLM_MODEL, temperature=0.7)
 
 @st.cache_resource
-def load_streaming_rag(vector_store, llm):
+def load_streaming_rag(_vector_store, _llm):
     """Create streaming RAG system"""
-    return StreamingRAG(vector_store, llm)
+    return StreamingRAG(_vector_store, _llm)
 
 # -----------------------------------------------------------------------
 # MAIN UI
@@ -239,7 +239,7 @@ if history:
     with summary_col1:
         st.metric("Questions in this chat", len(history))
     with summary_col2:
-        topics = ", ".join([h["question"].split()[0:3] for h in history])
+        topics = ", ".join([" ".join(h["question"].split()[:3]) for h in history])
         st.text(f"Topics: {topics}...")
     
     st.divider()
