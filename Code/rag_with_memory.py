@@ -10,6 +10,7 @@ Features:
 """
 
 import os
+from pathlib import Path
 from collections import deque
 from datetime import datetime
 from dotenv import load_dotenv
@@ -244,8 +245,8 @@ class StreamingRAG(ConversationalRAG):
 
 if __name__ == "__main__":
     # Load vector store and LLM
-    BASE_DIR = "/Users/vidhipitroda/Desktop/Projects/AI tutor"
-    FAISS_INDEX_PATH = os.path.join(BASE_DIR, "Data/faiss_index")
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    FAISS_INDEX_PATH = str(BASE_DIR / "Data" / "faiss_index")
     
     print("Loading vector store...")
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")

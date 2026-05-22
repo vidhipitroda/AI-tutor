@@ -21,7 +21,8 @@ from langchain_community.vectorstores import FAISS
 
 # Import enhanced RAG
 import sys
-sys.path.insert(0, '/Users/vidhipitroda/Desktop/Projects/AI tutor/Code')
+BASE_DIR = Path(__file__).resolve().parent.parent  # Project root
+sys.path.insert(0, str(BASE_DIR / "Code"))
 from rag_with_memory import StreamingRAG
 
 load_dotenv()
@@ -29,11 +30,10 @@ load_dotenv()
 # -----------------------------------------------------------------------
 # CONFIG
 # -----------------------------------------------------------------------
-BASE_DIR = "/Users/vidhipitroda/Desktop/Projects/AI tutor"
-FAISS_INDEX_PATH = os.path.join(BASE_DIR, "Data/faiss_index")
+FAISS_INDEX_PATH = str(BASE_DIR / "Data" / "faiss_index")
 LLM_MODEL = "gpt-4o-mini"
-BOOKMARKS_FILE = os.path.join(BASE_DIR, "bookmarks.json")
-CONVERSATIONS_DIR = os.path.join(BASE_DIR, "saved_conversations")
+BOOKMARKS_FILE = str(BASE_DIR / "bookmarks.json")
+CONVERSATIONS_DIR = str(BASE_DIR / "saved_conversations")
 
 # Create directories
 Path(CONVERSATIONS_DIR).mkdir(exist_ok=True)
