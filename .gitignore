@@ -5,6 +5,10 @@ env/
 
 # Data folder (PDFs, docs, cache — too large for git)
 Data/
+# But allow the FAISS index (needed for Streamlit Cloud)
+!Data/faiss_index/
+!Data/faiss_index/index.faiss
+!Data/faiss_index/index.pkl
 
 Code/RAG_IMPROVEMENTS.md
 Code/RAG_Analysis.md
