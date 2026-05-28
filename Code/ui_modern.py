@@ -58,6 +58,15 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
+    /* Hide empty containers */
+    div[data-testid="stVerticalBlock"]:empty {
+        display: none;
+    }
+    
+    div[data-testid="stHorizontalBlock"]:empty {
+        display: none;
+    }
+    
     /* Main container */
     .main {
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -200,6 +209,12 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background: white;
         border-right: 1px solid #e2e8f0;
+    }
+    
+    /* Force sidebar buttons to be equal width */
+    [data-testid="stSidebar"] [data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
     }
     
     [data-testid="stSidebar"] .stButton > button {
@@ -447,13 +462,13 @@ with st.sidebar:
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🗑️ Clear Chat"):
+        if st.button("🗑️ Clear Chat", use_container_width=True):
             st.session_state.messages = []
             rag.clear_history()
             st.rerun()
     
     with col2:
-        if st.button("📌 Bookmarks"):
+        if st.button("📌 Bookmarks", use_container_width=True):
             st.session_state.show_bookmarks = not st.session_state.show_bookmarks
             st.rerun()
     
