@@ -37,7 +37,7 @@ st.set_page_config(
     page_title="AI Tutor",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # -----------------------------------------------------------------------
@@ -460,11 +460,11 @@ with st.sidebar:
     st.divider()
     
     st.markdown("### 📊 Stats")
+    st.metric("Bookmarks", len(bookmarks.get_bookmarks()))
     if st.session_state.total_questions > 0:
         avg_time = st.session_state.total_time / st.session_state.total_questions
         st.metric("Questions", st.session_state.total_questions)
         st.metric("Avg Time", f"{avg_time:.1f}s")
-        st.metric("Bookmarks", len(bookmarks.get_bookmarks()))
     
     st.divider()
     
@@ -540,9 +540,7 @@ if st.session_state.show_bookmarks:
 # CHAT VIEW
 # -----------------------------------------------------------------------
 else:
-    # Display messages
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-    
+    # Welcome message when no chat
     if not st.session_state.messages:
         st.markdown("""
         <div style="text-align: center; padding: 4rem 2rem; color: #64748b;">
@@ -550,46 +548,49 @@ else:
             <p>I can help you understand concepts from research papers, documentation, and textbooks.</p>
         </div>
         """, unsafe_allow_html=True)
-    
-    for i, message in enumerate(st.session_state.messages):
-        if message["role"] == "user":
-            content = html.escape(message["content"]).replace('\n', '<br>')
-            st.markdown(f"""
-            <div class="message user-message">
-                <strong>You</strong>
-                <p>{content}</p>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            content = html.escape(message["content"]).replace('\n', '<br>')
-            st.markdown(f"""
-            <div class="message assistant-message">
-                <strong>AI Tutor</strong>
-                <p>{content}</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            if "sources" in message and message["sources"]:
-                sources_html = " ".join([f'<span class="source-tag">{s}</span>' for s in message["sources"]])
-                st.markdown(sources_html, unsafe_allow_html=True)
-            
-            # Action buttons
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if st.button("⭐ Save", key=f"save_{i}", use_container_width=True):
-                    user_q = st.session_state.messages[i-1]["content"] if i > 0 else "Unknown"
-                    bookmarks.add_bookmark(user_q, message["content"], message.get("sources", []))
-                    st.success("✅ Bookmarked!")
-                    time.sleep(1)
-                    st.rerun()
-            with col2:
-                if st.button("👍 Helpful", key=f"up_{i}", use_container_width=True):
-                    st.success("Thanks!")
-            with col3:
-                if st.button("📋 Copy", key=f"copy_{i}", use_container_width=True):
-                    st.success("Copied!")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        # Display messages in container
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+        
+        for i, message in enumerate(st.session_state.messages):
+            if message["role"] == "user":
+                content = html.escape(message["content"]).replace('\n', '<br>')
+                st.markdown(f"""
+                <div class="message user-message">
+                    <strong>You</strong>
+                    <p>{content}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                content = html.escape(message["content"]).replace('\n', '<br>')
+                st.markdown(f"""
+                <div class="message assistant-message">
+                    <strong>AI Tutor</strong>
+                    <p>{content}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if "sources" in message and message["sources"]:
+                    sources_html = " ".join([f'<span class="source-tag">{s}</span>' for s in message["sources"]])
+                    st.markdown(sources_html, unsafe_allow_html=True)
+                
+                # Action buttons
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    if st.button("⭐ Save", key=f"save_{i}", use_container_width=True):
+                        user_q = st.session_state.messages[i-1]["content"] if i > 0 else "Unknown"
+                        bookmarks.add_bookmark(user_q, message["content"], message.get("sources", []))
+                        st.success("✅ Bookmarked!")
+                        time.sleep(1)
+                        st.rerun()
+                with col2:
+                    if st.button("👍 Helpful", key=f"up_{i}", use_container_width=True):
+                        st.success("Thanks!")
+                with col3:
+                    if st.button("📋 Copy", key=f"copy_{i}", use_container_width=True):
+                        st.success("Copied!")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Input
     user_input = st.chat_input("Ask a question about AI, ML, or deep learning...")
