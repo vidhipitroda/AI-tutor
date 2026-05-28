@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 import streamlit as st
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
+from langchain_pinecone import PineconeVectorStore
 
 # Import enhanced RAG
 import sys
@@ -285,14 +286,23 @@ if "show_bookmarks" not in st.session_state:
 # -----------------------------------------------------------------------
 @st.cache_resource
 def load_vector_store():
-    """Load FAISS index"""
+    """Load vector store — Pinecone if key exists, else fall back to FAISS"""
     try:
         embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        vector_store = FAISS.load_local(
-            FAISS_INDEX_PATH,
-            embeddings,
-            allow_dangerous_deserialization=True
-        )
+        pinecone_key = os.getenv("PINECONE_API_KEY") or st.secrets.get("PINECONE_API_KEY", None)
+        if pinecone_key:
+            os.environ["PINECONE_API_KEY"] = pinecone_key
+            vector_store = PineconeVectorStore(
+                index_name="ai-tutor",
+                embedding=embeddings
+            )
+        else:
+            # Fall back to local FAISS (for local dev without Pinecone)
+            vector_store = FAISS.load_local(
+                FAISS_INDEX_PATH,
+                embeddings,
+                allow_dangerous_deserialization=True
+            )
         return vector_store
     except Exception as e:
         st.error(f"Failed to load vector store: {e}")
