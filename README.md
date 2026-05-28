@@ -3,7 +3,6 @@ A chatbot that answers questions about LLMs and AI using a knowledge base of res
 ![Python](https://img.shields.io/badge/Python-3.13-blue)
 ![LangChain](https://img.shields.io/badge/LangChain-1.2.15-green)
 ![Pinecone](https://img.shields.io/badge/Pinecone-cloud-purple)
-![License](https://img.shields.io/badge/License-MIT-purple)
 
 ---
 
@@ -223,9 +222,8 @@ Improvements I'm thinking about:
 
 ---
 
-## License
 
-MIT - Do whatever you want with this for learning and personal projects.
+This for learning and personal projects.
 
 ---
 
