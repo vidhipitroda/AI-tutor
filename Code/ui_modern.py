@@ -211,6 +211,15 @@ st.markdown("""
         border-right: 1px solid #e2e8f0;
     }
     
+    /* Hide sidebar collapse button */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    
+    button[kind="header"] {
+        display: none !important;
+    }
+    
     /* Force sidebar buttons to be equal width */
     [data-testid="stSidebar"] [data-testid="column"] {
         width: 50% !important;
@@ -434,30 +443,10 @@ def load_streaming_rag(_vector_store, _llm):
 # HEADER
 # -----------------------------------------------------------------------
 st.markdown("""
-<div class="header" style="position: relative;">
+<div class="header">
     <h1>🤖 AI Tutor</h1>
     <p>Your intelligent assistant for AI & Machine Learning concepts</p>
-    <button onclick="
-        const sidebar = document.querySelector('[data-testid=\\'stSidebarCollapsedControl\\']') || 
-                       document.querySelector('[data-testid=\\'collapsedControl\\']');
-        if (sidebar) sidebar.click();
-    " 
-            style="position: absolute; top: 2rem; right: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; font-size: 1.2rem;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); font-weight: 600;">
-        ☰ Menu
-    </button>
 </div>
-<script>
-// Add keyboard shortcut to toggle sidebar
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'b') {
-        const sidebar = document.querySelector('[data-testid="stSidebarCollapsedControl"]') || 
-                       document.querySelector('[data-testid="collapsedControl"]');
-        if (sidebar) sidebar.click();
-    }
-});
-</script>
 """, unsafe_allow_html=True)
 
 # Initialize components
@@ -478,6 +467,7 @@ bookmarks = st.session_state.bookmark_manager
 # SIDEBAR
 # -----------------------------------------------------------------------
 with st.sidebar:
+    st.title("🎯 AI Tutor Menu")
     st.markdown("### ⚙️ Controls")
     
     col1, col2 = st.columns(2)
