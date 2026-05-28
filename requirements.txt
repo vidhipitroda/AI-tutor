@@ -6,7 +6,6 @@ langchain-openai==1.2.1
 langchain-text-splitters==1.1.2
 langchain-pinecone==0.2.13
 openai==2.34.0
-faiss-cpu==1.13.2
 pinecone==7.3.0
 python-dotenv==1.2.2
 pypdf==6.10.2

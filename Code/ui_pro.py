@@ -17,7 +17,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
 from langchain_pinecone import PineconeVectorStore
 
 # Import enhanced RAG
@@ -31,7 +30,6 @@ load_dotenv()
 # -----------------------------------------------------------------------
 # CONFIG
 # -----------------------------------------------------------------------
-FAISS_INDEX_PATH = str(BASE_DIR / "Data" / "faiss_index")
 LLM_MODEL = "gpt-4o-mini"
 BOOKMARKS_FILE = str(BASE_DIR / "bookmarks.json")
 CONVERSATIONS_DIR = str(BASE_DIR / "saved_conversations")
@@ -286,23 +284,27 @@ if "show_bookmarks" not in st.session_state:
 # -----------------------------------------------------------------------
 @st.cache_resource
 def load_vector_store():
-    """Load vector store — Pinecone if key exists, else fall back to FAISS"""
+    """Load vector store from Pinecone"""
     try:
+        # Get keys — works both locally (.env) and on Streamlit Cloud (secrets)
+        pinecone_key = os.getenv("PINECONE_API_KEY") or st.secrets.get("PINECONE_API_KEY", "")
+        openai_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", "")
+
+        if not pinecone_key:
+            st.error("❌ PINECONE_API_KEY not found. Add it to secrets.")
+            return None
+        if not openai_key:
+            st.error("❌ OPENAI_API_KEY not found. Add it to secrets.")
+            return None
+
+        os.environ["PINECONE_API_KEY"] = pinecone_key
+        os.environ["OPENAI_API_KEY"] = openai_key
+
         embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        pinecone_key = os.getenv("PINECONE_API_KEY") or st.secrets.get("PINECONE_API_KEY", None)
-        if pinecone_key:
-            os.environ["PINECONE_API_KEY"] = pinecone_key
-            vector_store = PineconeVectorStore(
-                index_name="ai-tutor",
-                embedding=embeddings
-            )
-        else:
-            # Fall back to local FAISS (for local dev without Pinecone)
-            vector_store = FAISS.load_local(
-                FAISS_INDEX_PATH,
-                embeddings,
-                allow_dangerous_deserialization=True
-            )
+        vector_store = PineconeVectorStore(
+            index_name="ai-tutor",
+            embedding=embeddings
+        )
         return vector_store
     except Exception as e:
         st.error(f"Failed to load vector store: {e}")
