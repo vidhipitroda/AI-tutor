@@ -232,9 +232,11 @@ st.markdown("""
         border: 2px solid #667eea;
         box-shadow: none;
         white-space: nowrap !important;
-        padding: 0.5rem 0.75rem !important;
-        font-size: 0.85rem !important;
+        padding: 0.5rem 0.5rem !important;
+        font-size: 0.75rem !important;
         min-height: 38px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     
     [data-testid="stSidebar"] .stButton > button:hover {
@@ -476,13 +478,13 @@ with st.sidebar:
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🗑️ Clear Chat", use_container_width=True):
+        if st.button("🗑️ Clear", use_container_width=True):
             st.session_state.messages = []
             rag.clear_history()
             st.rerun()
     
     with col2:
-        if st.button("📌 Bookmarks", use_container_width=True):
+        if st.button("📌 Saved", use_container_width=True):
             st.session_state.show_bookmarks = not st.session_state.show_bookmarks
             st.rerun()
     
