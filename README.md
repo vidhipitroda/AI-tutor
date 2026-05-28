@@ -1,8 +1,8 @@
-A chatbot that answers questions about LLMs and AI using a knowledge base of research papers, docs, and textbooks. Built with LangChain, FAISS, and OpenAI.
+A chatbot that answers questions about LLMs and AI using a knowledge base of research papers, docs, and textbooks. Built with LangChain, Pinecone, and OpenAI.
 
 ![Python](https://img.shields.io/badge/Python-3.13-blue)
 ![LangChain](https://img.shields.io/badge/LangChain-1.2.15-green)
-![FAISS](https://img.shields.io/badge/FAISS-1.13.2-orange)
+![Pinecone](https://img.shields.io/badge/Pinecone-cloud-purple)
 ![License](https://img.shields.io/badge/License-MIT-purple)
 
 ---
@@ -44,6 +44,7 @@ That's 106 files total, broken into 6,694 chunks for searching.
 ### What You Need
 - Python 3.13+
 - An OpenAI API key
+- A Pinecone API key (free at [pinecone.io](https://pinecone.io))
 - Mac/Linux (or Windows with WSL)
 
 ### Setup
@@ -65,11 +66,10 @@ That's 106 files total, broken into 6,694 chunks for searching.
    pip install -r requirements.txt
    ```
 
-4. **Add your OpenAI API key**
+4. **Add your API keys to `.env`**
    ```bash
-   cp .env.example .env
-   # Edit .env and add your key
-   export OPENAI_API_KEY="sk-proj-your-key-here"
+   OPENAI_API_KEY=your-openai-key
+   PINECONE_API_KEY=your-pinecone-key
    ```
 
 ### Run It
@@ -98,24 +98,23 @@ python Code/Chatbot.py
 ```
 AI tutor/
 ├── Code/
-│   ├── Chatbot.py           # CLI interface
-│   ├── ui_pro.py            # Web UI with bookmarking
-│   ├── rag_with_memory.py   # Conversation memory logic
-│   ├── VectorStore.py       # Build the FAISS index
-│   ├── Ingestion.py         # Load & chunk documents
-│   └── verify_cache.py      # Check the cache
+│   ├── Chatbot.py              # CLI interface
+│   ├── ui_pro.py               # Web UI with bookmarking
+│   ├── rag_with_memory.py      # Conversation memory logic
+│   ├── upload_to_pinecone.py   # One-time script to upload chunks to Pinecone
+│   ├── Ingestion.py            # Load & chunk documents
+│   └── verify_cache.py         # Check the cache
 │
 ├── Data/
-│   ├── chunks_cache.pkl     # 6,694 chunks stored here
-│   ├── faiss_index/         # Vector database
-│   ├── Papers/              # 15 PDF papers
-│   ├── HF_Docs/             # 28 Hugging Face markdown files
+│   ├── chunks_cache.pkl        # 6,694 chunks (local cache)
+│   ├── Papers/                 # 15 PDF papers
+│   ├── HF_Docs/                # 28 Hugging Face markdown files
 │   ├── LangChain_OpenAI_Docs/  # 21 LangChain docs
-│   └── ML_DL_Docs/          # 42 ML/DL guides
+│   └── ML_DL_Docs/             # 42 ML/DL guides
 │
-├── requirements.txt         # Python packages
-├── .env                     # Your OpenAI key (don't commit)
-└── README.md                # This file
+├── requirements.txt            # Python packages
+├── .env                        # Your API keys (don't commit)
+└── README.md                   # This file
 ```
 
 ---
@@ -123,29 +122,29 @@ AI tutor/
 ## How It Works (The TL;DR)
 
 1. You ask a question
-2. It embeds your question into a vector
-3. Searches FAISS for the 5 most similar document chunks
+2. It embeds your question into a vector using OpenAI
+3. Searches Pinecone (cloud vector DB) for the 5 most similar chunks
 4. Sends those chunks + your question to GPT-4o-mini
 5. GPT returns an answer with source citations
 
-The whole thing takes 3-6 seconds. First query is slower because it loads the vector database into memory.
+The whole thing takes 3-5 seconds, mostly OpenAI API latency.
 
 ---
 
 ## Technical Details
 
 **Libraries used:**
-- LangChain 1.2.15 (LLM stuff)
-- FAISS 1.13.2 (fast vector search)
+- LangChain 1.2.15 (LLM orchestration)
+- Pinecone (cloud vector database — 6,694 chunks stored permanently)
 - OpenAI embeddings (convert text to vectors)
 - Streamlit (web UI)
 
-**How documents get indexed:**
+**How documents get indexed (one-time setup):**
 1. Load all 106 documents
 2. Split them into 6,694 chunks (512 tokens each, 64 token overlap)
 3. Convert each chunk to a vector using OpenAI embeddings
-4. Store in FAISS for fast searching
-5. Save to disk so we don't have to rebuild every time
+4. Upload to Pinecone — lives in the cloud permanently
+5. App connects to Pinecone on every query, no local files needed
 
 ---
 
@@ -157,15 +156,16 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**"FAISS index not found"**
+**"PINECONE_API_KEY not found"**
 ```bash
-python Code/VectorStore.py
+# Add to your .env file
+PINECONE_API_KEY=your-key-here
 ```
 
 **"OpenAI API key error"**
 ```bash
-export OPENAI_API_KEY="sk-proj-your-key-here"
-# Or create a .env file with your key
+# Add to your .env file
+OPENAI_API_KEY=your-key-here
 ```
 
 **"Streamlit won't start"**
@@ -174,13 +174,25 @@ pkill -f streamlit
 streamlit run Code/ui_pro.py
 ```
 
+## Deploying to Streamlit Cloud
+
+1. Push your code to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Connect your repo, set main file to `Code/ui_pro.py`
+4. Go to **Settings → Secrets** and add:
+   ```toml
+   OPENAI_API_KEY = "your-key"
+   PINECONE_API_KEY = "your-key"
+   ```
+5. Deploy — no large files needed, Pinecone handles the vector DB
+
 ---
 
 ## Performance Notes
 
-- First query: ~5-6 seconds (loads the vector database)
-- After that: ~3-4 seconds per query
-- FAISS search is fast (<100ms), most time is the OpenAI API
+- Queries take ~3-5 seconds (mostly OpenAI API latency)
+- Pinecone search is fast (<100ms)
+- No cold start — Pinecone is always on in the cloud
 
 ---
 
