@@ -16,7 +16,8 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
+from langchain_groq import ChatGroq
 from langchain_pinecone import PineconeVectorStore
 
 # Import enhanced RAG
@@ -312,8 +313,13 @@ def load_vector_store():
 
 @st.cache_resource
 def load_llm():
-    """Load LLM"""
-    return ChatOpenAI(model=LLM_MODEL, temperature=0.7)
+    """Load Groq LLM (free tier)"""
+    groq_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY", "")
+    if not groq_key:
+        st.error("❌ GROQ_API_KEY not found. Add it to secrets.")
+        return None
+    os.environ["GROQ_API_KEY"] = groq_key
+    return ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7)
 
 @st.cache_resource
 def load_streaming_rag(_vector_store, _llm):

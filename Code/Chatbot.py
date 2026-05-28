@@ -1,11 +1,12 @@
 """
 AI Tutor Chatbot - Retrieval-Augmented Generation (RAG)
 Answers questions by retrieving relevant chunks from FAISS index
-and synthesizing answers with OpenAI GPT-4.
+and synthesizing answers with Groq LLM.
 """
 import os
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_groq import ChatGroq
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -18,7 +19,7 @@ load_dotenv()
 # -----------------------------------------------------------------------
 BASE_DIR = "/Users/vidhipitroda/Desktop/Projects/AI tutor"
 FAISS_INDEX_PATH = os.path.join(BASE_DIR, "Data/faiss_index")
-LLM_MODEL = "gpt-4o-mini"  # Fast & affordable
+LLM_MODEL = "llama-3.3-70b-versatile"  # Groq - Fast & Free
 RETRIEVAL_COUNT = 5  # Top-5 chunks per question
 
 print("=" * 70)
@@ -49,9 +50,9 @@ except Exception as e:
 # -----------------------------------------------------------------------
 # 2. Initialize LLM
 # -----------------------------------------------------------------------
-print(f"[Initializing LLM: {LLM_MODEL}...]")
-llm = ChatOpenAI(model=LLM_MODEL, temperature=0.7)
-print(f"✅ LLM initialized")
+print(f"[Initializing Groq LLM: {LLM_MODEL}...]")
+llm = ChatGroq(model=LLM_MODEL, temperature=0.7)
+print(f"✅ Groq LLM initialized")
 
 # -----------------------------------------------------------------------
 # 3. Create RAG System

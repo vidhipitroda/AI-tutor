@@ -42,8 +42,9 @@ That's 106 files total, broken into 6,694 chunks for searching.
 
 ### What You Need
 - Python 3.13+
-- An OpenAI API key
-- A Pinecone API key (free at [pinecone.io](https://pinecone.io))
+- An OpenAI API key (for embeddings only - ~$0.0001 per query)
+- A Groq API key (free at [console.groq.com](https://console.groq.com) - for LLM)
+- A Pinecone API key (free at [pinecone.io](https://pinecone.io) - for vector DB)
 - Mac/Linux (or Windows with WSL)
 
 ### Setup
@@ -68,6 +69,7 @@ That's 106 files total, broken into 6,694 chunks for searching.
 4. **Add your API keys to `.env`**
    ```bash
    OPENAI_API_KEY=your-openai-key
+   GROQ_API_KEY=your-groq-key
    PINECONE_API_KEY=your-pinecone-key
    ```
 
@@ -121,12 +123,14 @@ AI tutor/
 ## How It Works (The TL;DR)
 
 1. You ask a question
-2. It embeds your question into a vector using OpenAI
+2. It embeds your question into a vector using OpenAI embeddings (~$0.00002)
 3. Searches Pinecone (cloud vector DB) for the 5 most similar chunks
-4. Sends those chunks + your question to GPT-4o-mini
-5. GPT returns an answer with source citations
+4. Sends those chunks + your question to Groq's Llama 3.3 70B (free!)
+5. Returns an answer with source citations
 
-The whole thing takes 3-5 seconds, mostly OpenAI API latency.
+**Cost per query: ~$0.0001** (embeddings only - LLM is free via Groq)
+
+The whole thing takes 2-4 seconds.
 
 ---
 
@@ -135,8 +139,15 @@ The whole thing takes 3-5 seconds, mostly OpenAI API latency.
 **Libraries used:**
 - LangChain 1.2.15 (LLM orchestration)
 - Pinecone (cloud vector database — 6,694 chunks stored permanently)
-- OpenAI embeddings (convert text to vectors)
+- OpenAI embeddings (convert text to vectors - text-embedding-3-small)
+- Groq (free LLM API - Llama 3.3 70B)
 - Streamlit (web UI)
+
+**Cost breakdown:**
+- Embeddings: ~$0.0001 per query (OpenAI)
+- LLM: $0 (Groq free tier - 14,400 requests/day)
+- Vector DB: $0 (Pinecone free tier)
+- Hosting: $0 (Streamlit Community Cloud)
 
 **How documents get indexed (one-time setup):**
 1. Load all 106 documents
@@ -153,6 +164,12 @@ The whole thing takes 3-5 seconds, mostly OpenAI API latency.
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+**"GROQ_API_KEY not found"**
+```bash
+# Get free key at console.groq.com, then add to .env
+GROQ_API_KEY=your-key-here
 ```
 
 **"PINECONE_API_KEY not found"**
@@ -181,6 +198,7 @@ streamlit run Code/ui_pro.py
 4. Go to **Settings → Secrets** and add:
    ```toml
    OPENAI_API_KEY = "your-key"
+   GROQ_API_KEY = "your-groq-key"
    PINECONE_API_KEY = "your-key"
    ```
 5. Deploy — no large files needed, Pinecone handles the vector DB
@@ -189,9 +207,10 @@ streamlit run Code/ui_pro.py
 
 ## Performance Notes
 
-- Queries take ~3-5 seconds (mostly OpenAI API latency)
+- Queries take ~2-4 seconds (Groq is fast!)
 - Pinecone search is fast (<100ms)
 - No cold start — Pinecone is always on in the cloud
+- **Cost: ~$0.0001 per query** (10,000 queries = $1)
 
 ---
 
