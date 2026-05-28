@@ -6,6 +6,7 @@ Clean, minimalist design with smooth interactions
 import os
 import json
 import time
+import html
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -106,7 +107,6 @@ st.markdown("""
         padding: 2rem;
         margin-bottom: 2rem;
         border: 1px solid rgba(255, 255, 255, 0.8);
-        min-height: 500px;
     }
     
     /* Message bubbles */
@@ -354,6 +354,7 @@ class BookmarkManager:
         self.save()
     
     def get_bookmarks(self):
+        self.load()  # Reload from file to get latest
         return self.bookmarks
 
 # -----------------------------------------------------------------------
@@ -513,10 +514,12 @@ if st.session_state.show_bookmarks:
     else:
         for bookmark in saved_bookmarks:
             with st.container():
+                question = html.escape(bookmark['question']).replace('\n', '<br>')
+                answer = html.escape(bookmark['answer_full']).replace('\n', '<br>')
                 st.markdown(f"""
                 <div class="message assistant-message">
-                    <strong>Q: {bookmark['question']}</strong>
-                    <p>{bookmark['answer_full']}</p>
+                    <strong>Q: {question}</strong>
+                    <p>{answer}</p>
                     <small style="opacity: 0.7;">Saved on {bookmark['timestamp'][:10]}</small>
                 </div>
                 """, unsafe_allow_html=True)
@@ -550,17 +553,19 @@ else:
     
     for i, message in enumerate(st.session_state.messages):
         if message["role"] == "user":
+            content = html.escape(message["content"]).replace('\n', '<br>')
             st.markdown(f"""
             <div class="message user-message">
                 <strong>You</strong>
-                <p>{message["content"]}</p>
+                <p>{content}</p>
             </div>
             """, unsafe_allow_html=True)
         else:
+            content = html.escape(message["content"]).replace('\n', '<br>')
             st.markdown(f"""
             <div class="message assistant-message">
                 <strong>AI Tutor</strong>
-                <p>{message["content"]}</p>
+                <p>{content}</p>
             </div>
             """, unsafe_allow_html=True)
             
