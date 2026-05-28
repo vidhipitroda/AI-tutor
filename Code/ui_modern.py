@@ -434,9 +434,15 @@ def load_streaming_rag(_vector_store, _llm):
 # HEADER
 # -----------------------------------------------------------------------
 st.markdown("""
-<div class="header">
+<div class="header" style="position: relative;">
     <h1>🤖 AI Tutor</h1>
     <p>Your intelligent assistant for AI & Machine Learning concepts</p>
+    <button onclick="document.querySelector('[data-testid=\\'stSidebarCollapsedControl\\']').click()" 
+            style="position: absolute; top: 2rem; right: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);">
+        ☰ Menu
+    </button>
 </div>
 """, unsafe_allow_html=True)
 
