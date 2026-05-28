@@ -231,6 +231,10 @@ st.markdown("""
         color: #667eea;
         border: 2px solid #667eea;
         box-shadow: none;
+        white-space: nowrap !important;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.85rem !important;
+        min-height: 38px !important;
     }
     
     [data-testid="stSidebar"] .stButton > button:hover {
